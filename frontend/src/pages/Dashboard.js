@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../components/Loader";
 import useApp from "../store/contexts/AppContext";
 import Cards from "../components/Cards";
+import InvalidMovie from "../components/InvalidMovie";
 
 const style = {
   marginTop: "100px",
@@ -66,7 +67,7 @@ export default function Dashboard() {
               }
             />
           </>
-        ) : null}
+        ) : <InvalidMovie />}
       </div>
     </>
   );
