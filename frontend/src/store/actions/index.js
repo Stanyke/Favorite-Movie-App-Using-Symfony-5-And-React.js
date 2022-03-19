@@ -3,6 +3,7 @@ const ACTIONS = {
   LOGOUT_USER: 'logout_user',
   DATA_LOADED: "data_loaded",
   SET_FAVORITE_MOVIES: "set_favorite_movies",
+  SET_FAVORITE_MOVIES_DATA: "set_favorite_movies_data",
   SET_NEW_MOVIE: 'set_new_movie',
   SET_SEARCHED_MOVIE: 'set_searched_movie',
 };

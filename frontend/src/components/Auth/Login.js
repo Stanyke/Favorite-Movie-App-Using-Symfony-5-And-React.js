@@ -20,6 +20,7 @@ export default function Login({ handleForms }) {
     password: "",
   });
 
+
   const [passwordStatus, setPasswordStatus] = useState("bi bi-eye-slash");
 
   const handleLogin = async (event) => {
@@ -71,7 +72,6 @@ export default function Login({ handleForms }) {
           />
           <span
             className="input-group-text"
-            id="basic-addon2"
             onClick={() => togglePassword()}
           >
             <i className={passwordStatus} style={{ fontSize: 20 }}></i>
@@ -80,7 +80,6 @@ export default function Login({ handleForms }) {
 
         <button
           type="submit"
-          size="large"
           className="form-control btn btn-danger"
         >
           Login

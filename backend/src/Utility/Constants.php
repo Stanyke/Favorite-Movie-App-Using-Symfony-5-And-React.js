@@ -4,7 +4,7 @@ namespace App\Utility;
 
 class Constants
 {
-    public const USER_REGISTERED = 'Registration successfully';
+    public const USER_REGISTERED = 'Registration successful';
     public const USER_LOGIN = 'Login successful';
     public const INVALID_CREDENTIALS = 'Invalid credentials';
     public const USER_EXISTS = 'User already exists';

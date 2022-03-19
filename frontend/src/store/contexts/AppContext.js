@@ -12,6 +12,7 @@ const {
   LOGOUT_USER,
   SET_NEW_MOVIE,
   SET_SEARCHED_MOVIE,
+  SET_FAVORITE_MOVIES_DATA,
 } = ACTIONS;
 
 const { REACT_APP_SERVER_URL, REACT_APP_AFTER_LOGIN_REDIRECT_URL } =
@@ -25,16 +26,18 @@ function useApp() {
 
   const [appState, dispatch] = context;
 
-  const { userToken } = appState;
+  const { userToken, isLoading, favoriteMovies } = appState;
 
   axios.defaults.baseURL = REACT_APP_SERVER_URL;
   axios.defaults.headers["Content-Type"] = "application/json";
   axios.defaults.headers["x-access-token"] = userToken;
 
   React.useEffect(() => {
-    //Only fetch all users when user is logged in and user is in dashboard
+    //Only fetch all users when user is logged in and user is in dashboard and no movie is available in state
+    const movieExists = Object.values(favoriteMovies).length ? true : false;
     userToken &&
       location.pathname === REACT_APP_AFTER_LOGIN_REDIRECT_URL &&
+      !movieExists &&
       getMyProfileFromDb() &&
       getMyFavoriteMoviesFromDb();
   }, []);
@@ -48,15 +51,15 @@ function useApp() {
 
   const loginUser = async (options) => {
     try {
-      console.log('[p[[[[[[[[[[[[')
+      pageLoaderhandler(true);
       const { data } = await axios.post("/auth/login", options);
-      showToast("Login Successful");
-      console.log('22222222222', data)
-      // dispatch({
-      //   type: SET_USER,
-      //   payload: data.data,
-      // });
+      showToast(data.message);
+      dispatch({
+        type: SET_USER,
+        payload: data.data,
+      });
     } catch (err) {
+      pageLoaderhandler(false);
       showToast(err.response.data.message);
     }
   };
@@ -64,7 +67,7 @@ function useApp() {
   const registerUser = async (options) => {
     try {
       const { data } = await axios.post("/auth/register", options);
-      showToast("Registration Successful");
+      showToast(data.message);
       dispatch({
         type: SET_USER,
         payload: data.data,
@@ -80,15 +83,155 @@ function useApp() {
 
   const getMyFavoriteMoviesFromDb = async () => {
     try {
-      const { data } = await axios.get(`/api/me`);
       pageLoaderhandler(true);
+      const { data } = await axios.get(`/api/movies/favorite`);
+
+      getMyFavoriteMoviesFromOMDb(data.data);
+    } catch (err) {
+      pageLoaderhandler(false);
+      showToast(err.response.data.message);
+    }
+  };
+
+  const getMyFavoriteMoviesFromOMDb = async (movies) => {
+    try {
+      //rewrite token and url
+      axios.defaults.baseURL = null;
+      axios.defaults.headers["x-access-token"] = null;
+      let updatedMovies = [];
+
+      for await (const movie of movies) {
+        //Added corsanywhere for CORS bypass
+        const movieURL = `https://corsanywhere.herokuapp.com/https://www.omdbapi.com?apikey=9066e28e&i=${movie.movie_id}`;
+        const { data } = await axios.get(movieURL);
+        const movieData = {
+          ...movie,
+          title: data.Title,
+          year: data.Year,
+          type: data.Type,
+          poster: data.Poster,
+        };
+        updatedMovies.push(movieData);
+      }
+      pageLoaderhandler(false);
+
       dispatch({
         type: SET_FAVORITE_MOVIES,
-        payload: data.data,
+        payload: updatedMovies,
       });
+
+      //return token and url
+      axios.defaults.baseURL = REACT_APP_SERVER_URL;
+      axios.defaults.headers["x-access-token"] = userToken;
+    } catch (err) {
+      pageLoaderhandler(false);
+      showToast(err.response.data.message);
+    }
+  };
+
+  const addFavoriteMovieToDb = async (movie_id) => {
+    try {
+      const { data } = await axios.post(`/api/movies/favorite`, {
+        movie_id,
+      });
+
+      getMyFavoriteMoviesFromDb();
+      showToast(data.message);
+      return true;
     } catch (err) {
       showToast(err.response.data.message);
     }
+  };
+
+  const searchMovie = async (search) => {
+    try {
+      if (!search) {
+        showToast("Movie name is invalid");
+      } else {
+        pageLoaderhandler(true);
+
+        //rewrite token and url
+        axios.defaults.baseURL = null;
+        axios.defaults.headers["x-access-token"] = null;
+
+        search = search.toLowerCase();
+        let updatedMovies = [];
+
+        //Added corsanywhere for CORS bypass
+        const movieURL = `https://corsanywhere.herokuapp.com/https://www.omdbapi.com?apikey=9066e28e&s=${search}`;
+        const { data } = await axios.get(movieURL);
+        pageLoaderhandler(false);
+
+        //Remove invalid movies
+        data.Search = data.Search.filter((movie) => movie.Poster !== "N/A");
+
+        for await (const movie of data.Search) {
+          const movieData = {
+            movie_id: movie.imdbID,
+            title: movie.Title,
+            year: movie.Year,
+            type: movie.Type,
+            poster: movie.Poster,
+          };
+          updatedMovies.push(movieData);
+        }
+
+        dispatch({
+          type: SET_SEARCHED_MOVIE,
+          payload: updatedMovies,
+        });
+
+        //return token and url
+        axios.defaults.baseURL = REACT_APP_SERVER_URL;
+        axios.defaults.headers["x-access-token"] = userToken;
+      }
+    } catch (err) {
+      pageLoaderhandler(false);
+      showToast(err.response.data.message);
+    }
+  };
+
+  const getMovieById = async (id) => {
+    try {
+      //rewrite token and url
+      axios.defaults.baseURL = null;
+      axios.defaults.headers["x-access-token"] = null;
+
+      //Added corsanywhere for CORS bypass
+      const movieURL = `https://corsanywhere.herokuapp.com/https://www.omdbapi.com?apikey=9066e28e&i=${id}`;
+      const { data } = await axios.get(movieURL);
+
+      const movieData = {
+        movie_id: id,
+        title: data.Title,
+        year: data.Year,
+        rated: data.Rated,
+        released: data.Released,
+        runtime: data.Runtime,
+        genre: data.Genre,
+        type: data.Type,
+        language: data.Language,
+        country: data.Country,
+        actors: data.Actors,
+        poster: data.Poster,
+        plot: data.Plot,
+      };
+
+      //return token and url
+      axios.defaults.baseURL = REACT_APP_SERVER_URL;
+      axios.defaults.headers["x-access-token"] = userToken;
+
+      return movieData;
+    } catch (err) {
+      showToast(err.response.data.message);
+    }
+  };
+
+  const resetSeachResult = () => {
+    dispatch({
+      type: SET_FAVORITE_MOVIES_DATA,
+      payload: favoriteMovies,
+    });
   };
 
   const getMyProfileFromDb = async () => {
@@ -100,6 +243,7 @@ function useApp() {
       });
     } catch (err) {
       showToast(err.response.data.message);
+      removeUser();
     }
   };
 
@@ -117,6 +261,11 @@ function useApp() {
     loginUser,
     registerUser,
     removeUser,
+    isLoading,
+    searchMovie,
+    getMovieById,
+    resetSeachResult,
+    addFavoriteMovieToDb,
   };
 }
 

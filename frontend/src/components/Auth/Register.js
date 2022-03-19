@@ -95,7 +95,6 @@ export default function Register({ handleForms }) {
 
         <button
           type="submit"
-          size="large"
           className="form-control btn btn-danger"
         >
           Register

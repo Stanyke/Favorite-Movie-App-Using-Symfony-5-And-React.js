@@ -31,7 +31,11 @@ class ApiController extends AbstractController
             'email' => $token['user'],
         ]);
 
-        $user = (new UserService)->getUser($user);
+        $token = (new Authentication)->encode([
+            "user" => $user->getEmail(),
+        ], $this->getParameter('jwt_secret'));
+
+        $user = (new UserService)->getUser($user, $token);
 
         return ResponseHandler::result($response, Response::HTTP_OK, Constants::USER_FETCHED, $user);
     }

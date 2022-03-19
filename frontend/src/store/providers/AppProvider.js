@@ -9,6 +9,7 @@ function AppProvider({children}) {
     userToken: localStorage.getItem("userToken"),
     favoriteMovies: {},
     searchedMovie: {},
+    moviesLoadedFrom: 'favorite',
     isLoading: false,
   });
 
