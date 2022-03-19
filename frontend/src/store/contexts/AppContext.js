@@ -275,7 +275,7 @@ function useApp() {
   };
 
   const removeUser = async () => {
-    showToast("Logout Successful");
+    showToast("Logout successful");
     dispatch({
       type: LOGOUT_USER,
       payload: "",

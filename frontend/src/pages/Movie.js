@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useApp from "../store/contexts/AppContext";
 import Loader from "../components/Loader";
+import InvalidMovie from "../components/InvalidMovie";
+import { useNavigate } from "react-router-dom";
 
 const badgeStatus = ["primary", "danger", "success"];
 
@@ -42,10 +44,13 @@ export default function Movie() {
     getMovieById,
     addFavoriteMovieToDb,
     removeFavoriteMovieFromDb,
-    appState: { user, userToken, isLoading, favoriteMovies },
+    appState: { userToken, isLoading, favoriteMovies },
   } = useApp();
 
+  const navigate = useNavigate();
+
   const [movie, setMovie] = useState(null);
+  const [invalidMovie, setInvalidMovie] = useState(false);
   const [isFavorite, setIsFavorite] = useState("Checking...");
 
   const movieId = id;
@@ -63,7 +68,7 @@ export default function Movie() {
   useEffect(() => {
     async function fetchMovie() {
       const movie = await getMovieById(movieId);
-      setMovie(movie);
+      movie.title ? setMovie(movie) : setInvalidMovie(true);
     }
 
     fetchMovie();
@@ -79,13 +84,21 @@ export default function Movie() {
     }
   }, [favoriteMovies]);
 
+  useEffect(() => {
+    if (!userToken) {
+      return navigate(process.env.REACT_APP_BEFORE_LOGIN_REDIRECT_URL);
+    }
+  }, [userToken, favoriteMovies, navigate, isLoading]);
+
   return (
     <>
       <Navbar />
 
       <div className="container" style={style}>
-        {!movie ? (
+        {!movie && !invalidMovie ? (
           <Loader counts="4" />
+        ) : invalidMovie ? (
+          <InvalidMovie />
         ) : (
           <div className="col-12" style={movieContainerStyle}>
             <div

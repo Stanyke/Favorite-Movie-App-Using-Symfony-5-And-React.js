@@ -4,6 +4,7 @@ import useApp from "../store/contexts/AppContext";
 import Navbar from "../components/Navbar";
 import Login from "../components/Auth/Login";
 import Register from "../components/Auth/Register";
+import { useLocation } from "react-router-dom";
 
 const { REACT_APP_AFTER_LOGIN_REDIRECT_URL } = process.env;
 const style = {
@@ -21,6 +22,8 @@ export default function Auth() {
   const [currentForm, setCurrentForm] = useState("login");
   let navigate = useNavigate();
 
+  const location = useLocation();
+
   const handleForms = async (form) => {
     setCurrentForm(form);
   };
@@ -33,7 +36,7 @@ export default function Auth() {
 
   return (
     <>
-      <Navbar />
+      <Navbar location={location.pathname} />
 
       <div className="container" style={style}>
         {currentForm === "login" ? (

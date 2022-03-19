@@ -12,7 +12,6 @@ const style = {
 export default function Dashboard() {
   const {
     appState: {
-      user,
       userToken,
       isLoading,
       favoriteMovies,
