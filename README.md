@@ -12,4 +12,6 @@ This is an application build with symfony 5 (backend for restful APIs) and React
  - REACT_APP_BEFORE_LOGIN_REDIRECT_URL, this is url of the authentication page e.g (`/`)
  - REACT_APP_PLATFORM_NAME, this is the name of the application e.g. `Favorite Movies`
 
+- Here is the url to the local documentation of the APIs on postman, https://documenter.getpostman.com/view/12673071/UVsPQQdT
+
 ## Thank You, I hope you enjoy this project
