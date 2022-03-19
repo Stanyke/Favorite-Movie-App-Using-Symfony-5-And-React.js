@@ -86,6 +86,7 @@ function useApp() {
       pageLoaderhandler(true);
       const { data } = await axios.get(`/api/movies/favorite`);
 
+      console.log('823222222', data.data);
       getMyFavoriteMoviesFromOMDb(data.data);
     } catch (err) {
       pageLoaderhandler(false);

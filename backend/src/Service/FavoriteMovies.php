@@ -45,6 +45,8 @@ class FavoriteMoviesService
             ];
         }
 
+        $data = array_reverse($data);
+
         return $data;
     }
 }

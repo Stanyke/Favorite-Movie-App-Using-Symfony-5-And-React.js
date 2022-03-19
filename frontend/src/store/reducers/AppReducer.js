@@ -6,7 +6,7 @@ const {
   SET_FAVORITE_MOVIES,
   SET_NEW_MOVIE,
   SET_SEARCHED_MOVIE,
-  SET_FAVORITE_MOVIES_DATA
+  SET_FAVORITE_MOVIES_DATA,
 } = ACTIONS;
 
 export default function appReducer(state, action) {
@@ -32,8 +32,8 @@ export default function appReducer(state, action) {
       };
     case SET_FAVORITE_MOVIES:
       let obj = {};
-      action.payload.forEach((data) => {
-        obj[data.id] = data;
+      action.payload.forEach((data, i) => {
+        obj[i] = data;
       });
       const updatedData = {
         ...obj,
