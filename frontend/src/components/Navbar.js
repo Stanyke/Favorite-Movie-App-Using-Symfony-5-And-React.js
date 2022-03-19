@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useApp from "../store/contexts/AppContext";
 
 const {
@@ -14,6 +15,8 @@ export default function Navbar() {
     resetSeachResult,
     appState: { user, userToken, isLoading, favoriteMovies },
   } = useApp();
+
+  const navigate = useNavigate();
 
   const handleMovieSearch = (e) => {
     e.preventDefault();
@@ -65,7 +68,13 @@ export default function Navbar() {
                 aria-label="Search"
                 name="search"
               />
-              <button className="btn btn-outline-success" type="submit">
+              <button
+                className="btn btn-outline-success"
+                type="submit"
+                onClick={() =>
+                  navigate(process.env.REACT_APP_AFTER_LOGIN_REDIRECT_URL)
+                }
+              >
                 Search
               </button>
             </form>

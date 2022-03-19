@@ -11,7 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Auth />} />
         <Route path="/dashboard" exact element={<Dashboard />} />
-        <Route path="/movie/:id" exact element={<Movie />} />
+        <Route path="/movies/:id" exact element={<Movie />} />
       </Routes>
     </BrowserRouter>
   );

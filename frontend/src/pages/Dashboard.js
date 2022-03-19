@@ -41,8 +41,7 @@ export default function Dashboard() {
             </h3>
             <Loader counts="4" />
           </>
-        ) : Object.values(favoriteMovies).length ||
-          Object.keys(searchedMovie).length ? (
+        ) : favoriteMovies.length || searchedMovie.length ? (
           <>
             <h3 className="text-center text-white mb-5">
               {moviesLoadedFrom === "favorite" ? (

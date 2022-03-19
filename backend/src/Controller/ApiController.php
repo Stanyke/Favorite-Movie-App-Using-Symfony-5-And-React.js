@@ -55,10 +55,12 @@ class ApiController extends AbstractController
             return ResponseHandler::result($response, Response::HTTP_BAD_REQUEST, Constants::INVALID_REQUEST);
         }
 
-        //check if movie already exists
-        $getMovie = $favoriteMoviesRepository->findOneBy([
+        $getMovieFilter = [
             'movie_id' => $parameter['movie_id']
-        ]);
+        ];
+
+        //check if movie already exists
+        $getMovie = $favoriteMoviesRepository->findOneBy($getMovieFilter);
 
         if ($getMovie) return ResponseHandler::result($response, Response::HTTP_CONFLICT, Constants::MOVIE_EXISTS);
 
@@ -72,32 +74,49 @@ class ApiController extends AbstractController
 
         $parameter['user_unique_id'] = $user['unique_id'];
 
-        (new FavoriteMoviesService)->add($parameter, $doctrine);
+        (new FavoriteMoviesService)->add($parameter, $doctrine, $favoriteMoviesRepository);
 
-        return ResponseHandler::result($response, Response::HTTP_OK, Constants::MOVIE_ADDED);
+        $movie = (new FavoriteMoviesService)->getOneMovieByFilter($getMovieFilter, $favoriteMoviesRepository);
+
+        return ResponseHandler::result($response, Response::HTTP_OK, Constants::MOVIE_ADDED, $movie);
     }
 
     /**
-     * @Route("/api/movies/favorite", name="removeFavoriteMovie", methods={"DELETE"})
+     * @Route("/api/movies/favorite/{movie_id}", name="removeFavoriteMovie", methods={"DELETE"})
      */
-    public function removeFavoriteMovie(Request $request, UserRepository $userRepository, FavoriteMoviesRepository $favoriteMoviesRepository, ManagerRegistry $doctrine): Response
+    public function removeFavoriteMovie(Request $request, UserRepository $userRepository, FavoriteMoviesRepository $favoriteMoviesRepository, ManagerRegistry $doctrine, $movie_id): Response
     {
         $response = new Response();
-        $authToken = $request->headers->get('x-access-token');
-        $parameter = json_decode($request->getContent(), true);
 
-        if (!$parameter || !array_key_exists("movie_id", $parameter)) {
-            return ResponseHandler::result($response, Response::HTTP_BAD_REQUEST, Constants::INVALID_REQUEST);
-        } else if (empty($parameter['movie_id'])) {
-            return ResponseHandler::result($response, Response::HTTP_BAD_REQUEST, Constants::INVALID_REQUEST);
-        }
+        $authToken = $request->headers->get('x-access-token');
+        $token = (new Authentication)->decode($authToken, $this->getParameter('jwt_secret'));
+
+        $user = $userRepository->findOneBy([
+            'email' => $token['user'],
+        ]);
+
+        $user = (new UserService)->getUser($user);
 
         //check if movie already exists
         $getMovie = $favoriteMoviesRepository->findOneBy([
-            'movie_id' => $parameter['movie_id']
+            'movie_id' => $movie_id,
+            'user_unique_id' => $user['unique_id']
         ]);
 
         if (!$getMovie) return ResponseHandler::result($response, Response::HTTP_BAD_REQUEST, Constants::MOVIE_NOT_EXISTS);
+
+        (new FavoriteMoviesService)->remove($getMovie, $doctrine);
+
+        return ResponseHandler::result($response, Response::HTTP_OK, Constants::MOVIE_REMOVED);
+    }
+
+    /**
+     * @Route("/api/movies/favorite/{movie_id}", name="getFavoriteMovie", methods={"GET"})
+     */
+    public function getFavoriteMovie(Request $request, UserRepository $userRepository, FavoriteMoviesRepository $favoriteMoviesRepository, $movie_id): Response
+    {
+        $response = new Response();
+        $authToken = $request->headers->get('x-access-token');
 
         $token = (new Authentication)->decode($authToken, $this->getParameter('jwt_secret'));
 
@@ -107,11 +126,19 @@ class ApiController extends AbstractController
 
         $user = (new UserService)->getUser($user);
 
+        //check if movie already exists
+        $getMovie = $favoriteMoviesRepository->findOneBy([
+            'movie_id' => $movie_id,
+            'user_unique_id' => $user['unique_id']
+        ]);
+
+        if (!$getMovie) return ResponseHandler::result($response, Response::HTTP_BAD_REQUEST, Constants::MOVIE_NOT_EXISTS);
+
         if ($getMovie->getUserUniqueId() !== $user['unique_id']) return ResponseHandler::result($response, Response::HTTP_UNAUTHORIZED, Constants::USER_MOVIE_NOT_ALLOWED);
 
-        (new FavoriteMoviesService)->remove($getMovie, $doctrine);
+        $movie = (new FavoriteMoviesService)->getOneMovie($getMovie);
 
-        return ResponseHandler::result($response, Response::HTTP_OK, Constants::MOVIE_REMOVED);
+        return ResponseHandler::result($response, Response::HTTP_OK, Constants::MOVIE_FETCHED, $movie);
     }
 
     /**

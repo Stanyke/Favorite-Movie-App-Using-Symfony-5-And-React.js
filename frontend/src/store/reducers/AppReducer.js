@@ -4,9 +4,7 @@ const {
   LOGOUT_USER,
   DATA_LOADED,
   SET_FAVORITE_MOVIES,
-  SET_NEW_MOVIE,
   SET_SEARCHED_MOVIE,
-  SET_FAVORITE_MOVIES_DATA,
 } = ACTIONS;
 
 export default function appReducer(state, action) {
@@ -31,46 +29,16 @@ export default function appReducer(state, action) {
         isLoading: action.payload,
       };
     case SET_FAVORITE_MOVIES:
-      let obj = {};
-      action.payload.forEach((data, i) => {
-        obj[i] = data;
-      });
-      const updatedData = {
-        ...obj,
-      };
-      return {
-        ...state,
-        favoriteMovies: updatedData,
-        searchedMovie: {},
-        moviesLoadedFrom: "favorite",
-      };
-    case SET_FAVORITE_MOVIES_DATA:
       return {
         ...state,
         favoriteMovies: action.payload,
         searchedMovie: {},
         moviesLoadedFrom: "favorite",
       };
-    case SET_NEW_MOVIE:
-      let newDataObj = {};
-      newDataObj[action.payload._id] = action.payload;
-      return {
-        ...state,
-        favoriteMovies: { ...newDataObj, ...state.favoriteMovies },
-        moviesLoadedFrom: "favorite",
-        searchedMovie: {},
-      };
     case SET_SEARCHED_MOVIE:
-      let obj2 = {};
-      action.payload.forEach((data, i) => {
-        obj2[i] = data;
-      });
-      const updatedData2 = {
-        ...obj2,
-      };
       return {
         ...state,
-        searchedMovie: updatedData2,
+        searchedMovie: action.payload,
         moviesLoadedFrom: "search",
       };
     default:

@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import useApp from "../store/contexts/AppContext";
 import Loader from "../components/Loader";
 
-const badgeStatus = ["primary", "danger", "success", "warning"];
+const badgeStatus = ["primary", "danger", "success"];
 
 const style = {
   marginTop: "100px",
@@ -41,17 +41,23 @@ export default function Movie() {
   const {
     getMovieById,
     addFavoriteMovieToDb,
+    removeFavoriteMovieFromDb,
     appState: { user, userToken, isLoading, favoriteMovies },
   } = useApp();
 
   const [movie, setMovie] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState("Checking...");
 
   const movieId = id;
 
   const addFavoriteMovie = () => {
     const result = addFavoriteMovieToDb(movieId);
-    setIsFavorite(result);
+    setIsFavorite(result ? "Yes" : "No");
+  };
+
+  const removeFavoriteMovie = () => {
+    const result = removeFavoriteMovieFromDb(movieId);
+    setIsFavorite(result ? "No" : "Yes");
   };
 
   useEffect(() => {
@@ -61,16 +67,17 @@ export default function Movie() {
     }
 
     fetchMovie();
+  }, []);
 
-    let isFavoriteResult =
-      Object.values(favoriteMovies).length &&
-      Object.keys(favoriteMovies).find(
-        (item, i) => favoriteMovies[item].movie_id === movieId
+  useEffect(() => {
+    if (favoriteMovies.length) {
+      let isFavoriteResult = favoriteMovies.find(
+        (item, i) => item.movie_id === movieId
       );
 
-    setIsFavorite(isFavoriteResult);
-    console.log("========", favoriteMovies);
-  }, []);
+      setIsFavorite(isFavoriteResult ? "Yes" : "No");
+    }
+  }, [favoriteMovies]);
 
   return (
     <>
@@ -99,7 +106,7 @@ export default function Movie() {
                       <b>{movie.title}</b>
                     </h3>
                     <div>
-                      {!isFavorite ? (
+                      {isFavorite === "No" || isFavorite === "Checking..." ? (
                         <i
                           className="bi bi-bookmark-heart-fill"
                           style={wishIconStyle.white}
@@ -108,9 +115,10 @@ export default function Movie() {
                         ></i>
                       ) : (
                         <i
-                          className="bi bi-heart-fill"
+                          className="bi bi-trash3-fill ml-2"
                           style={wishIconStyle.red}
-                          title="Already in favorites"
+                          title="Remove from favorites"
+                          onClick={removeFavoriteMovie}
                         ></i>
                       )}
                     </div>
@@ -167,6 +175,17 @@ export default function Movie() {
 
                       <div>
                         <b>Year:</b> <span className="small">{movie.year}</span>
+                      </div>
+
+                      <div>
+                        <b>Status:</b>{" "}
+                        <span className="small">
+                          {isFavorite === "Checking..."
+                            ? isFavorite
+                            : isFavorite === "Yes"
+                            ? "Added to favorites"
+                            : "Not in favorites"}
+                        </span>
                       </div>
                     </div>
                   </div>

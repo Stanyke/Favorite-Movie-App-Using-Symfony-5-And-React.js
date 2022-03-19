@@ -49,4 +49,26 @@ class FavoriteMoviesService
 
         return $data;
     }
+
+    public function getOneMovie($movie)
+    {
+        $data = [
+            'id' => $movie->getId(),
+            'movie_id' => $movie->getMovieId(),
+        ];
+
+        return $data;
+    }
+
+    public function getOneMovieByFilter($filter, $favoriteMoviesRepository)
+    {
+        $movie = $favoriteMoviesRepository->findOneBy($filter);
+
+        $data = [
+            'id' => $movie->getId(),
+            'movie_id' => $movie->getMovieId(),
+        ];
+
+        return $data;
+    }
 }

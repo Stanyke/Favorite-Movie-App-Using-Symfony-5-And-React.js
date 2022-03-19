@@ -20,12 +20,12 @@ const movieTitleStyle = {
 export default function Cards({ movies }) {
   return (
     <div className="row no-gutters">
-      {Object.values(movies).length
-        ? Object.keys(movies).map((item, i) => {
+      {movies.length
+        ? movies.map((item, i) => {
             const movie = {
-              title: movies[item].title,
-              poster: movies[item].poster,
-              movieId: movies[item].movie_id,
+              title: item.title,
+              poster: item.poster,
+              movieId: item.movie_id,
             };
 
             return (
@@ -35,9 +35,7 @@ export default function Cards({ movies }) {
                 style={{ background: "transparent" }}
               >
                 <div style={posterContainerStyle}>
-                  <Link
-                    to={`/movie/${movie.movieId}`}
-                  >
+                  <Link to={`/movies/${movie.movieId}`}>
                     <img
                       src={movie.poster}
                       className="card-img"

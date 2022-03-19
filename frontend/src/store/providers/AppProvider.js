@@ -7,8 +7,8 @@ function AppProvider({children}) {
   const [state, dispatch] = React.useReducer(appReducer, {
     user: {},
     userToken: localStorage.getItem("userToken"),
-    favoriteMovies: {},
-    searchedMovie: {},
+    favoriteMovies: [],
+    searchedMovie: [],
     moviesLoadedFrom: 'favorite',
     isLoading: false,
   });

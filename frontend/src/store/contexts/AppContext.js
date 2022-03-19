@@ -10,9 +10,7 @@ const {
   SET_FAVORITE_MOVIES,
   SET_USER,
   LOGOUT_USER,
-  SET_NEW_MOVIE,
   SET_SEARCHED_MOVIE,
-  SET_FAVORITE_MOVIES_DATA,
 } = ACTIONS;
 
 const { REACT_APP_SERVER_URL, REACT_APP_AFTER_LOGIN_REDIRECT_URL } =
@@ -34,9 +32,10 @@ function useApp() {
 
   React.useEffect(() => {
     //Only fetch all users when user is logged in and user is in dashboard and no movie is available in state
-    const movieExists = Object.values(favoriteMovies).length ? true : false;
+    const movieExists = favoriteMovies.length ? true : false;
     userToken &&
-      location.pathname === REACT_APP_AFTER_LOGIN_REDIRECT_URL &&
+      (location.pathname === REACT_APP_AFTER_LOGIN_REDIRECT_URL ||
+        location.pathname.includes("movies/")) &&
       !movieExists &&
       getMyProfileFromDb() &&
       getMyFavoriteMoviesFromDb();
@@ -85,9 +84,7 @@ function useApp() {
     try {
       pageLoaderhandler(true);
       const { data } = await axios.get(`/api/movies/favorite`);
-
-      console.log('823222222', data.data);
-      getMyFavoriteMoviesFromOMDb(data.data);
+      await getMyFavoriteMoviesFromOMDb(data.data);
     } catch (err) {
       pageLoaderhandler(false);
       showToast(err.response.data.message);
@@ -104,14 +101,7 @@ function useApp() {
       for await (const movie of movies) {
         //Added corsanywhere for CORS bypass
         const movieURL = `https://corsanywhere.herokuapp.com/https://www.omdbapi.com?apikey=9066e28e&i=${movie.movie_id}`;
-        const { data } = await axios.get(movieURL);
-        const movieData = {
-          ...movie,
-          title: data.Title,
-          year: data.Year,
-          type: data.Type,
-          poster: data.Poster,
-        };
+        const movieData = await movieRequestHandler(movieURL, movie);
         updatedMovies.push(movieData);
       }
       pageLoaderhandler(false);
@@ -130,17 +120,53 @@ function useApp() {
     }
   };
 
+  const movieRequestHandler = async (movieURL, movie) => {
+    try {
+      //Added corsanywhere for CORS bypass
+      const { data } = await axios.get(movieURL);
+      const movieData = {
+        ...movie,
+        title: data.Title,
+        year: data.Year,
+        type: data.Type,
+        poster: data.Poster,
+      };
+      return movieData;
+    } catch (err) {
+      return err.response.data.message;
+    }
+  };
+
   const addFavoriteMovieToDb = async (movie_id) => {
     try {
       const { data } = await axios.post(`/api/movies/favorite`, {
         movie_id,
       });
-
-      getMyFavoriteMoviesFromDb();
       showToast(data.message);
+      getMyFavoriteMoviesFromDb();
       return true;
     } catch (err) {
       showToast(err.response.data.message);
+    }
+  };
+
+  const removeFavoriteMovieFromDb = async (movie_id) => {
+    try {
+      const { data } = await axios.delete(`/api/movies/favorite/${movie_id}`);
+      showToast(data.message);
+
+      //Remove from favorites
+      const updatedMovies = await favoriteMovies.filter(
+        (movie) => movie.movie_id !== movie_id
+      );
+      dispatch({
+        type: SET_FAVORITE_MOVIES,
+        payload: updatedMovies,
+      });
+      return true;
+    } catch (err) {
+      showToast(err.response.data.message);
+      return false;
     }
   };
 
@@ -230,7 +256,7 @@ function useApp() {
 
   const resetSeachResult = () => {
     dispatch({
-      type: SET_FAVORITE_MOVIES_DATA,
+      type: SET_FAVORITE_MOVIES,
       payload: favoriteMovies,
     });
   };
@@ -267,6 +293,7 @@ function useApp() {
     getMovieById,
     resetSeachResult,
     addFavoriteMovieToDb,
+    removeFavoriteMovieFromDb,
   };
 }
 
