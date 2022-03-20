@@ -19,9 +19,12 @@ export default function appReducer(state, action) {
     case LOGOUT_USER:
       localStorage.removeItem("userToken");
       return {
-        ...state,
         user: {},
         userToken: "",
+        favoriteMovies: [],
+        searchedMovie: [],
+        moviesLoadedFrom: "favorite",
+        isLoading: false,
       };
     case DATA_LOADED:
       return {
