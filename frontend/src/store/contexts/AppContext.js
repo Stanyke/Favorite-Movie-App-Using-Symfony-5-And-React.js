@@ -214,7 +214,11 @@ function useApp() {
       }
     } catch (err) {
       pageLoaderhandler(false);
-      showToast(err.response.data.message);
+      showToast("Could not find any movie with the provided name");
+
+      //return token and url
+      axios.defaults.baseURL = REACT_APP_SERVER_URL;
+      axios.defaults.headers["x-access-token"] = userToken;
     }
   };
 

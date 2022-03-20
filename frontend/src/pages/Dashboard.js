@@ -73,7 +73,11 @@ export default function Dashboard() {
                 />
               </>
             ) : (
-              <InvalidMovie />
+              <InvalidMovie
+                message={
+                  "Favorite movies list is empty, please search for movies and add them to the list"
+                }
+              />
             )}
           </div>
         </>

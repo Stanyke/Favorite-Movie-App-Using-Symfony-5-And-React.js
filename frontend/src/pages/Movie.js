@@ -100,7 +100,7 @@ export default function Movie() {
             {!movie && !invalidMovie ? (
               <Loader counts="4" />
             ) : invalidMovie ? (
-              <InvalidMovie />
+              <InvalidMovie message={"Movie does not exist"} />
             ) : (
               <div className="col-12" style={movieContainerStyle}>
                 <div

@@ -1,11 +1,19 @@
 import React from "react";
 
-export default function InvalidMovie() {
+export default function InvalidMovie({ message }) {
   return (
-    <div className="alert alert-danger d-flex align-items-center text-center" role="alert">
-      <i className="bi bi-file-earmark-lock-fill" style={{ fontSize: 20 }}></i>
+    <div
+      className="alert alert-danger d-flex align-items-center text-center"
+      role="alert"
+    >
+      <div className="text-center">
+        <i
+          className="bi bi-file-earmark-lock-fill"
+          style={{ fontSize: 20 }}
+        ></i>
 
-      <div>Movie does not exist</div>
+        <span>{message}</span>
+      </div>
     </div>
   );
 }
