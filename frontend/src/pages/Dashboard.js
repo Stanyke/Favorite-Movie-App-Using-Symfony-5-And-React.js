@@ -31,44 +31,53 @@ export default function Dashboard() {
 
   return (
     <>
-      <Navbar />
-
-      <div className="container" style={style}>
-        {isLoading ? (
-          <>
-            <h3 className="text-center text-white mb-5">
-              {moviesLoadedFrom === "favorite" ? "My Movies" : "Search Result"}
-            </h3>
-            <Loader counts="4" />
-          </>
-        ) : favoriteMovies.length || searchedMovie.length ? (
-          <>
-            <h3 className="text-center text-white mb-5">
-              {moviesLoadedFrom === "favorite" ? (
-                "My Movies"
-              ) : (
-                <>
-                  Search Result{" "}
-                  <div>
-                    <button
-                      className="btn btn-primary btn-sm"
-                      type="button"
-                      onClick={resetSeachResult}
-                    >
-                      Go Back
-                    </button>
-                  </div>
-                </>
-              )}
-            </h3>
-            <Cards
-              movies={
-                moviesLoadedFrom === "favorite" ? favoriteMovies : searchedMovie
-              }
-            />
-          </>
-        ) : <InvalidMovie />}
-      </div>
+      {userToken && (
+        <>
+          <Navbar />
+          <div className="container" style={style}>
+            {isLoading ? (
+              <>
+                <h3 className="text-center text-white mb-5">
+                  {moviesLoadedFrom === "favorite"
+                    ? "My Movies"
+                    : "Search Result"}
+                </h3>
+                <Loader counts="4" />
+              </>
+            ) : favoriteMovies.length || searchedMovie.length ? (
+              <>
+                <h3 className="text-center text-white mb-5">
+                  {moviesLoadedFrom === "favorite" ? (
+                    "My Movies"
+                  ) : (
+                    <>
+                      Search Result{" "}
+                      <div>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          type="button"
+                          onClick={resetSeachResult}
+                        >
+                          Go Back
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </h3>
+                <Cards
+                  movies={
+                    moviesLoadedFrom === "favorite"
+                      ? favoriteMovies
+                      : searchedMovie
+                  }
+                />
+              </>
+            ) : (
+              <InvalidMovie />
+            )}
+          </div>
+        </>
+      )}
     </>
   );
 }

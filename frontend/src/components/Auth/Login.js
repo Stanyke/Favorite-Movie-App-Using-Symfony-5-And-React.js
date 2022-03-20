@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import useApp from "../../store/contexts/AppContext";
 
 const noticeStyle = {
@@ -20,12 +20,21 @@ export default function Login({ handleForms }) {
     password: "",
   });
 
+  let submitBtnRef = useRef();
 
   const [passwordStatus, setPasswordStatus] = useState("bi bi-eye-slash");
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    loginUser(user);
+    if (submitBtnRef.current) {
+      submitBtnRef.current.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Login in progress';
+      submitBtnRef.current.setAttribute("disabled", true);
+    }
+    await loginUser(user);
+    if (submitBtnRef.current) {
+      submitBtnRef.current.innerHTML = 'Login';
+      submitBtnRef.current.removeAttribute("disabled");
+    }
   };
 
   const togglePassword = () => {
@@ -49,9 +58,10 @@ export default function Login({ handleForms }) {
             type="email"
             className="form-control"
             placeholder="Example@mail.com"
-            aria-label="Email"
+            aria-label="email"
             value={user.email}
             onChange={(e) => setUser({ ...user, email: e.target.value })}
+            required
           />
         </div>
 
@@ -70,15 +80,13 @@ export default function Login({ handleForms }) {
             value={user.password}
             onChange={(e) => setUser({ ...user, password: e.target.value })}
           />
-          <span
-            className="input-group-text"
-            onClick={() => togglePassword()}
-          >
+          <span className="input-group-text" onClick={() => togglePassword()}>
             <i className={passwordStatus} style={{ fontSize: 20 }}></i>
           </span>
         </div>
 
         <button
+          ref={submitBtnRef}
           type="submit"
           className="form-control btn btn-danger"
         >
