@@ -11,6 +11,8 @@ This is an application build with symfony 5 (backend for restful APIs) and React
  - REACT_APP_AFTER_LOGIN_REDIRECT_URL, this is url of the dashboard or page after user login e.g (`/dashboard`)
  - REACT_APP_BEFORE_LOGIN_REDIRECT_URL, this is url of the authentication page e.g (`/`)
  - REACT_APP_PLATFORM_NAME, this is the name of the application e.g. `Favorite Movies`
+ - REACT_APP_CORS_URL, this is the url to your own corsanywhere handler, if any, however there is an alternative in the code if it does not exist (or you putting your own corsanywhere handler).
+ - REACT_APP_OMDB_API_KEY, this is the api key to use for api requests *Visit https://www.omdbapi.com to get your API key*
 
 - Here is the url to the local documentation of the APIs on postman, https://documenter.getpostman.com/view/12673071/UVsPQQdT
 
