@@ -5,7 +5,8 @@ This is an application build with symfony 5 (backend for restful APIs) and React
 # How To Use This App
 - Clone the repository
 - Go into the backend folder and install the necessary dependencies using `yarn add` command
-- Also, goto the .env file in the backend folder and update the `DATABASE_URL` to MySQL test or live db
+- Also, goto the .env file in the backend folder and update the `DATABASE_URL` with your MySQL test or live db (which has already being created by you)
+- Then run the following command to migrate the database schema in the migrations folder, into your database. Run `php symfony doctrine:migrate`
 - Then goto the frontend directory and run `yarn add` command too
 - Add a `.env` file inside the frontend folder (root directory), the following are the variables needed.
  - REACT_APP_SERVER_URL, this is the url of the server e.g (`http://localhost:8000`), note it does not have an ending slash.
